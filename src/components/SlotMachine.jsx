@@ -56,9 +56,16 @@ const SpinButton = styled.button`
   }
 `;
 
+const ResultMessage = styled.div`
+  margin-top: 20px;
+  font-size: 1.2em;
+  color: ${props => (props.points > 0 ? 'green' : 'red')};
+`;
+
+// List of emojis
 const emojis = [
   '🍎', '🍌', '🍒', '🍇', '🍊', '🍉', '🍍', '🍋', '🍓', '🔔', '💎', '7️⃣', 'BAR', '🍀', '💰', '💲',
-]; // List of emojis
+];
 
 // Helper function to get a random emoji index
 const getRandomSymbol = () => Math.floor(Math.random() * emojis.length);
@@ -66,6 +73,8 @@ const getRandomSymbol = () => Math.floor(Math.random() * emojis.length);
 const SlotMachine = () => {
   const [spinning, setSpinning] = useState(false);
   const [reels, setReels] = useState([0, 1, 2]);
+  const [resultMessage, setResultMessage] = useState('');
+  const [score, setScore] = useState(0);
 
   // Generate a new set of random emojis
   const newReels = useMemo(() => reels.map(() => getRandomSymbol()), [spinning]);
@@ -92,6 +101,7 @@ const SlotMachine = () => {
         if (spinning && index === reels.length - 1) {
           setSpinning(false);
           setReels(newReels);
+          evaluateResult(newReels);
         }
       },
       delay: index * 500, // Staggered stop
@@ -101,7 +111,16 @@ const SlotMachine = () => {
   const handleSpin = () => {
     if (!spinning) {
       setSpinning(true);
+      setResultMessage('');
     }
+  };
+
+  const evaluateResult = (newReels) => {
+    const [reel1, reel2, reel3] = newReels;
+    const points = (reel1 === reel2 && reel2 === reel3) ? 10 : (reel1 === reel2 || reel2 === reel3) ? 5 : 0;
+    
+    setScore(prevScore => prevScore + points);
+    setResultMessage(points > 0 ? `You won ${points} points!` : 'Try again!');
   };
 
   return (
@@ -130,6 +149,10 @@ const SlotMachine = () => {
       <SpinButton onClick={handleSpin} disabled={spinning}>
         {spinning ? 'Spinning...' : 'Spin'}
       </SpinButton>
+      <ResultMessage points={score}>
+        {resultMessage}
+      </ResultMessage>
+      <div>Score: {score}</div>
     </SlotMachineContainer>
   );
 };
