@@ -56,7 +56,9 @@ const SpinButton = styled.button`
   }
 `;
 
-const emojis = ['🍎', '🍌', '🍒', '🍇', '🍊', '🍉', '🍍', '🍋', '🍓', '🔔', '💎', '7️⃣', 'BAR', '🍀', '💰', '💲',   ]; // List of emojis
+const emojis = [
+  '🍎', '🍌', '🍒', '🍇', '🍊', '🍉', '🍍', '🍋', '🍓', '🔔', '💎', '7️⃣', 'BAR', '🍀', '💰', '💲',
+]; // List of emojis
 
 // Helper function to get a random emoji index
 const getRandomSymbol = () => Math.floor(Math.random() * emojis.length);
@@ -68,25 +70,33 @@ const SlotMachine = () => {
   // Generate a new set of random emojis
   const newReels = useMemo(() => reels.map(() => getRandomSymbol()), [spinning]);
 
-  const spins = useMemo(() => {
-    return reels.map((reel, index) => {
-      const endValue = -(100 * newReels[index]);
+  const spins = reels.map((reel, index) => {
+    const endValue = -(100 * newReels[index]);
 
-      return useSpring({
-        from: { transform: `translateY(-${reel * 100}px)` },
-        to: { transform: `translateY(${endValue}px)` },
-        config: { tension: 200, friction: 20 },
-        reset: true,
-        onRest: () => {
-          if (spinning && index === reels.length - 1) {
-            setSpinning(false);
-            setReels(newReels);
-          }
-        },
-        delay: index * 150, // Slight delay between each reel spin
-      });
+    return useSpring({
+      from: { transform: `translateY(${reel * 100}px)` }, // Start from the current position
+      to: async (next) => {
+        // Spin for 7 seconds
+        await next({ transform: `translateY(${reel * 100 - 2000}px)`, config: { tension: 120, friction: 20 } });
+        // Slow down to the target position
+        await next({ transform: `translateY(${endValue}px)`, config: { tension: 150, friction: 40 } });
+      },
+      config: {
+        mass: 1,
+        clamp: true,
+        precision: 0.01,
+        restSpeedThreshold: 0.01,
+        restDisplacementThreshold: 0.01,
+      },
+      onRest: () => {
+        if (spinning && index === reels.length - 1) {
+          setSpinning(false);
+          setReels(newReels);
+        }
+      },
+      delay: index * 500, // Staggered stop
     });
-  }, [reels, spinning, newReels]);
+  });
 
   const handleSpin = () => {
     if (!spinning) {
@@ -101,7 +111,15 @@ const SlotMachine = () => {
           <ReelWrapper key={index}>
             <Reel style={spins[index]}>
               {emojis.map((emoji, i) => (
-                <div key={i} style={{ height: '100px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <div
+                  key={i}
+                  style={{
+                    height: '100px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
                   {emoji}
                 </div>
               ))}
