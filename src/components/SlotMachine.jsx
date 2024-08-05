@@ -33,12 +33,12 @@ const ReelWrapper = styled.div`
 `;
 
 const Reel = styled(animated.div)`
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: 4rem;
   position: absolute;
+  width: 100%;
 `;
 
 const SpinButton = styled.button`
@@ -65,6 +65,7 @@ const ResultMessage = styled.div`
 // List of emojis
 const emojis = [
   '🍎', '🍌', '🍒', '🍇', '🍊', '🍉', '🍍', '🍋', '🍓', '🔔', '💎', '7️⃣', 'BAR', '🍀', '💰', '💲',
+  // ... (other emojis)
 ];
 
 // Helper function to get a random emoji index
@@ -75,6 +76,7 @@ const SlotMachine = () => {
   const [reels, setReels] = useState([0, 1, 2]);
   const [resultMessage, setResultMessage] = useState('');
   const [score, setScore] = useState(0);
+  const [reelsStopped, setReelsStopped] = useState(0);
 
   // Generate a new set of random emojis
   const newReels = useMemo(() => reels.map(() => getRandomSymbol()), [spinning]);
@@ -83,7 +85,7 @@ const SlotMachine = () => {
     const endValue = -(100 * newReels[index]);
 
     return useSpring({
-      from: { transform: `translateY(${reel * 100}px)` }, // Start from the current position
+      from: { transform: `translateY(${reel * 100}px)` },
       to: async (next) => {
         // Spin for 7 seconds
         await next({ transform: `translateY(${reel * 100 - 2000}px)`, config: { tension: 120, friction: 20 } });
@@ -98,20 +100,20 @@ const SlotMachine = () => {
         restDisplacementThreshold: 0.01,
       },
       onRest: () => {
-        if (spinning && index === reels.length - 1) {
-          setSpinning(false);
-          setReels(newReels);
-          evaluateResult(newReels);
+        if (spinning) {
+          setReelsStopped(prev => prev + 1);
         }
       },
-      delay: index * 500, // Staggered stop
+      delay: index * 500,
     });
   });
 
   const handleSpin = () => {
     if (!spinning) {
       setSpinning(true);
+      setReelsStopped(0);
       setResultMessage('');
+      setReels(newReels);
     }
   };
 
@@ -123,13 +125,20 @@ const SlotMachine = () => {
     setResultMessage(points > 0 ? `You won ${points} points!` : 'Try again!');
   };
 
+  useMemo(() => {
+    if (reelsStopped === reels.length) {
+      setSpinning(false);
+      evaluateResult(newReels);
+    }
+  }, [reelsStopped, newReels]);
+
   return (
     <SlotMachineContainer>
       <ReelsContainer>
         {reels.map((_, index) => (
           <ReelWrapper key={index}>
             <Reel style={spins[index]}>
-              {emojis.map((emoji, i) => (
+              {emojis.concat(emojis).concat(emojis).map((emoji, i) => (
                 <div
                   key={i}
                   style={{
