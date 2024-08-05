@@ -1,0 +1,155 @@
+/* music player -------------------------------------------------------------*/
+
+.music-player {
+    align-items: center;
+    /* Center content horizontally */
+    text-align: center;
+    background: #333;
+    color: #00FF00;
+    padding: 20px;
+    border: 2px solid #00FF00;
+    border-radius: 10px;
+    width: 100%;
+    /* Make sure the player container takes full width */
+    max-width: 450px;
+    max-height: 700px;
+    /* Set a maximum width for the player */
+    margin: auto;
+    font-family: 'VT323', monospace;
+    box-shadow: 0 0 20px #00FF00;
+}
+
+.react-player {
+    max-height: 10px;
+}
+
+.title-bar {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;   
+    margin-bottom: 20px;
+    background: #000;
+    padding: 10px;
+    border: 2px solid #00FF00;
+    border-radius: 5px;
+}
+
+.title {
+    display: inline-block;
+    width: 105%;
+    /* has to be slightly bigger so text scroll disappears fully*/
+    animation: marquee 15s linear infinite;
+    color: #00FF00;
+    white-space: nowrap;
+    /* Prevent text from wrapping */
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(100%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+    /* Center content horizontally */
+}
+
+.play-pause-controls {
+    display: inline-block;
+    text-align: center;
+    flex: 1;
+}
+
+.volume-controls {
+    position: absolute;
+    right: 10px;
+    /* Adjust the space from the right edge */
+    text-align: center;
+}
+
+.control-button {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #48ff00;
+    margin: 0 10px;
+    /* Space between buttons */
+    border: 2px solid rgb(60, 255, 0);
+    border-radius: 5px;
+    padding: 2px 8px;
+}
+
+.control-button:hover {
+    color: #0056b3;
+}
+
+.volume-toggle {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #007bff;
+}
+
+.volume-toggle:hover {
+    color: #00e1ff;
+}
+
+.volume-control {
+    margin-top: 5px;
+    /* Space between toggle button and slider */
+}
+
+.volume-slider {
+    width: 100px;
+    /* Adjust width as needed */
+}
+
+.volume-control {
+    position: absolute;
+    bottom: 50%;
+    /* Adjust based on your layout */
+    right: 0;
+    transform: translateY(50%);
+    /* Center vertically relative to button */
+    display: flex;
+    align-items: center;
+    z-index: 10;
+    /* Ensure it's above other elements */
+}
+
+.progress-bar-container {
+    width: 100%;
+    background: #ddd;
+    height: 8px;
+    border-radius: 5px;
+    margin: 10px 0;
+    position: relative;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #007bff;
+    border-radius: 5px;
+    width: 0%;
+    /* Will be dynamically updated */
+    transition: width 0.2s;
+}
+
+.progress-time {
+    position: absolute;
+    top: 10px;
+    right: 0;
+    font-size: 12px;
+    color: #333;
+}
